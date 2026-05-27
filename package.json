@@ -1,0 +1,13 @@
+{
+  "name": "kpop-photocard-market",
+  "private": true,
+  "version": "1.0.0",
+  "description": "K-pop photocard marketplace with price tracking",
+  "scripts": {
+    "dev:server": "npm run dev --prefix server",
+    "dev:client": "npm run dev --prefix client",
+    "build:client": "npm run build --prefix client",
+    "seed": "npm run seed --prefix server",
+    "seed:prices": "npm run seed:prices --prefix server"
+  }
+}

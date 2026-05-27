@@ -1,5 +1,6 @@
 import express from "express";
 import PriceHistory from "../models/PriceHistory.js";
+import { median } from "../utils/pricing.js";
 
 const router = express.Router();
 
@@ -21,19 +22,12 @@ router.get("/:cardId/market-value", async (req, res) => {
             });
         }
 
-        const soldPrices = prices
-            .map((entry) => entry.price)
-            .sort((a, b) => a - b);
+        const soldPrices = prices.map((entry) => entry.price);
+        const estimatedMarketValue = median(soldPrices);
 
-        const middleIndex = Math.floor(soldPrices.length / 2);
-
-        const median = 
-            soldPrices.length % 2 === 0
-            ? (soldPrices[middleIndex - 1] + soldPrices[middleIndex]) / 2
-            : soldPrices[middleIndex];
         res.json({
             cardId,
-            estimatedMarketValue: median,
+            estimatedMarketValue,
             priceCount: soldPrices.length,
             method: "median",
         });

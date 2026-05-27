@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "nodemon app.js",
     "start": "node app.js",
-    "seed": "node seedCards.js"
+    "seed": "node seedCards.js",
+    "seed:prices": "node seedPrices.js"
   },
   "dependencies": {
     "cors": "^2.8.6",
