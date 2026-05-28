@@ -25,13 +25,13 @@ interface FilterSidebarProps {
 
 export function FilterSidebar({ filters, options, onFilterChange, onClear }: FilterSidebarProps) {
   return (
-    <aside className="rounded-xl border border-border bg-card p-4 lg:sticky lg:top-24">
+    <aside className="rounded-lg border border-border bg-card p-4 shadow-sm lg:sticky lg:top-24">
       <div className="mb-4 flex items-start justify-between gap-4">
         <div>
           <h2 className="font-semibold">Filters</h2>
           <p className="text-sm text-muted-foreground">Narrow the marketplace</p>
         </div>
-        <button type="button" onClick={onClear} className="text-sm text-muted-foreground hover:text-primary">
+        <button type="button" onClick={onClear} className="rounded-md px-2 py-1 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-primary">
           Clear
         </button>
       </div>
@@ -76,7 +76,7 @@ export function FilterSidebar({ filters, options, onFilterChange, onClear }: Fil
               value={filters.minPrice}
               onChange={(event) => onFilterChange('minPrice', event.target.value)}
               placeholder="Min"
-              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm shadow-sm transition-colors hover:border-foreground/20 focus:outline-none focus:ring-2 focus:ring-ring"
             />
             <input
               type="number"
@@ -84,7 +84,7 @@ export function FilterSidebar({ filters, options, onFilterChange, onClear }: Fil
               value={filters.maxPrice}
               onChange={(event) => onFilterChange('maxPrice', event.target.value)}
               placeholder="Max"
-              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm shadow-sm transition-colors hover:border-foreground/20 focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
         </div>
@@ -111,7 +111,7 @@ function FilterSelect({ label, value, options, emptyLabel = 'Any', onChange }: F
         value={value}
         onChange={(event) => onChange(event.target.value)}
         disabled={!hasOptions}
-        className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-60"
+        className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm shadow-sm transition-colors hover:border-foreground/20 focus:outline-none focus:ring-2 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-60"
       >
         <option value="">{hasOptions ? 'Any' : emptyLabel}</option>
         {options.map((option) => (

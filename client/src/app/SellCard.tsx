@@ -6,6 +6,7 @@ import { createCardListing } from '../services/cardApi.js';
 import { Navbar } from './components/Navbar';
 import { PrimaryButton } from './components/PrimaryButton';
 import { SecondaryButton } from './components/SecondaryButton';
+import { ErrorState } from './components/StatusStates';
 
 const initialForm = {
   group: '',
@@ -92,15 +93,15 @@ export default function SellCard() {
     <div className="min-h-screen bg-background">
       <Navbar />
 
-      <main className="mx-auto max-w-4xl px-4 py-10">
+      <main className="mx-auto max-w-4xl px-4 py-8 sm:py-10">
         <div className="mb-8">
-          <h1 className="text-3xl font-semibold md:text-4xl">Sell a Photocard</h1>
-          <p className="mt-2 text-muted-foreground">Create a marketplace listing using card details and an image.</p>
+          <h1 className="text-3xl font-semibold leading-tight md:text-4xl">Sell a Photocard</h1>
+          <p className="mt-2 leading-7 text-muted-foreground">Create a marketplace listing using card details and an image.</p>
         </div>
 
         {error && (
-          <div className="mb-6 rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-            {error}. Make sure the API server is running on port 5000.
+          <div className="mb-6">
+            <ErrorState message={error} serverHint={error !== 'Please upload an image file' && error !== 'Failed to read image file'} />
           </div>
         )}
 
@@ -113,7 +114,7 @@ export default function SellCard() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="rounded-xl border border-border bg-card p-5">
+        <form onSubmit={handleSubmit} className="rounded-lg border border-border bg-card p-4 shadow-sm sm:p-5">
           <div className="grid gap-4 md:grid-cols-2">
             <TextField label="Group" value={form.group} onChange={(value) => updateField('group', value)} required />
             <TextField label="Idol" value={form.idol} onChange={(value) => updateField('idol', value)} required />
@@ -231,7 +232,7 @@ function TextField({ label, value, onChange, className = '', ...props }: TextFie
       <input
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+        className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm shadow-sm transition-colors hover:border-foreground/20 focus:outline-none focus:ring-2 focus:ring-ring"
         {...props}
       />
     </label>
@@ -252,7 +253,7 @@ function SelectField({ label, value, options, onChange }: SelectFieldProps) {
       <select
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+        className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm shadow-sm transition-colors hover:border-foreground/20 focus:outline-none focus:ring-2 focus:ring-ring"
       >
         {options.map((option) => (
           <option key={option} value={option}>

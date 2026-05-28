@@ -9,9 +9,11 @@ import { GroupCard } from './components/GroupCard';
 import { SearchBar } from './components/SearchBar';
 import { SectionHeader } from './components/SectionHeader';
 import { CardGrid } from './components/CardGrid';
+import { CardSkeletonGrid, EmptyState, ErrorState } from './components/StatusStates';
 import Marketplace from './Marketplace';
 import CardDetail from './CardDetail';
 import SellCard from './SellCard';
+import Watchlist from './Watchlist';
 
 function getCurrentRoute() {
   if (window.location.pathname.startsWith('/cards/')) {
@@ -19,6 +21,10 @@ function getCurrentRoute() {
   }
 
   if (window.location.pathname === '/sell') {
+    return window.location.pathname;
+  }
+
+  if (window.location.pathname === '/watchlist') {
     return window.location.pathname;
   }
 
@@ -118,16 +124,20 @@ export default function App() {
     return <SellCard />;
   }
 
+  if (page === '/watchlist') {
+    return <Watchlist />;
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
 
-      <section className="bg-gradient-to-b from-background to-muted/20 py-20 px-4">
+      <section className="bg-gradient-to-b from-background to-muted/20 px-4 py-14 sm:py-20">
         <div className="max-w-7xl mx-auto text-center">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-semibold mb-4">
+          <h1 className="mx-auto mb-4 max-w-4xl text-4xl font-semibold leading-tight sm:text-5xl lg:text-6xl">
             The marketplace for K-pop photocards
           </h1>
-          <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
+          <p className="mx-auto mb-8 max-w-3xl text-base leading-7 text-muted-foreground sm:text-lg md:text-xl">
             Track prices, discover rare cards, and buy or sell photocards from your favorite idols.
           </p>
 
@@ -139,19 +149,17 @@ export default function App() {
 
       {error && (
         <div className="max-w-7xl mx-auto px-4 -mt-8 mb-4">
-          <p className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-            {error}. Make sure the API server is running on port 5000.
-          </p>
+          <ErrorState message={error} />
         </div>
       )}
 
-      <section className="py-12 px-4">
+      <section className="px-4 py-10 sm:py-12">
         <div className="max-w-7xl mx-auto">
           <SectionHeader title="Trending Photocards" action={cardCountLabel} />
-          {!hasCards ? (
-            <div className="min-h-80 transition-opacity duration-200">
-              {!loading && <p className="text-muted-foreground">No photocards match your search.</p>}
-            </div>
+          {loading ? (
+            <CardSkeletonGrid />
+          ) : !hasCards ? (
+            <EmptyState title="No photocards found" message="Try a different idol, group, album, or card name." />
           ) : (
             <CardGrid isLoading={loading}>
               {trendingCards.map((card) => (
@@ -162,11 +170,13 @@ export default function App() {
         </div>
       </section>
 
-      <section className="py-12 px-4 bg-muted/20">
+      <section className="bg-muted/20 px-4 py-10 sm:py-12">
         <div className="max-w-7xl mx-auto">
           <SectionHeader title="Popular Groups" />
-          {groups.length === 0 && !loading ? (
-            <p className="text-muted-foreground">No groups found.</p>
+          {loading ? (
+            <CardSkeletonGrid count={6} />
+          ) : groups.length === 0 ? (
+            <EmptyState title="No groups found" message="Group summaries will appear after marketplace data loads." />
           ) : (
             <CardGrid variant="groups">
               {groups.map((group) => (
@@ -177,24 +187,30 @@ export default function App() {
         </div>
       </section>
 
-      <section className="py-12 px-4">
+      <section className="px-4 py-10 sm:py-12">
         <div className="max-w-7xl mx-auto">
           <SectionHeader title="Recently Listed" />
-          {recentlyListed.length > 0 && (
+          {loading ? (
+            <CardSkeletonGrid count={4} />
+          ) : recentlyListed.length > 0 ? (
             <CardGrid isLoading={loading}>
               {recentlyListed.slice(0, 4).map((card) => (
                 <PhotocardCard key={`recent-${card._id}`} {...cardToPhotocardProps(card)} />
               ))}
             </CardGrid>
+          ) : (
+            <EmptyState title="No recent listings" message="Newly created listings will show up here." />
           )}
         </div>
       </section>
 
-      <section className="py-12 px-4 bg-muted/20">
+      <section className="bg-muted/20 px-4 py-10 sm:py-12">
         <div className="max-w-7xl mx-auto">
           <SectionHeader title="Market Movers" />
-          {!loading && marketMovers.length === 0 ? (
-            <p className="text-muted-foreground">No upward price trends yet.</p>
+          {loading ? (
+            <CardSkeletonGrid count={4} />
+          ) : marketMovers.length === 0 ? (
+            <EmptyState title="No market movers yet" message="Cards with upward price trends will appear here." />
           ) : (
             <CardGrid isLoading={loading}>
               {marketMovers.map((card) => (

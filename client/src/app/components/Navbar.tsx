@@ -1,8 +1,17 @@
-import { User, Heart, Menu } from 'lucide-react';
+import { useState } from 'react';
+import { User, Heart, Menu, X } from 'lucide-react';
+
+const navLinks = [
+  { href: '/#marketplace', label: 'Browse' },
+  { href: '/sell', label: 'Sell' },
+  { href: '#', label: 'About' },
+];
 
 export function Navbar() {
+  const [open, setOpen] = useState(false);
+
   return (
-    <nav className="border-b border-border bg-background sticky top-0 z-50">
+    <nav className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-8">
@@ -12,28 +21,55 @@ export function Navbar() {
               </a>
             </div>
             <div className="hidden md:flex items-center gap-6">
-              <a href="/#marketplace" className="text-sm hover:text-primary transition-colors">Browse</a>
-              <a href="/sell" className="text-sm hover:text-primary transition-colors">Sell</a>
-              <a href="#" className="text-sm hover:text-primary transition-colors">About</a>
+              {navLinks.map((link) => (
+                <a key={link.href} href={link.href} className="text-sm text-muted-foreground transition-colors hover:text-primary">
+                  {link.label}
+                </a>
+              ))}
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
-            <button type="button" aria-label="Favorites" className="p-2 hover:bg-accent rounded-lg transition-colors">
+          <div className="flex items-center gap-2">
+            <a href="/watchlist" aria-label="Watchlist" className="rounded-lg p-2 transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
               <Heart className="w-5 h-5" />
-            </button>
-            <button type="button" aria-label="Account" className="p-2 hover:bg-accent rounded-lg transition-colors">
+            </a>
+            <button type="button" aria-label="Account" className="hidden rounded-lg p-2 transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:inline-flex">
               <User className="w-5 h-5" />
             </button>
             <button
               type="button"
-              aria-label="Open navigation menu"
-              className="md:hidden p-2 hover:bg-accent rounded-lg transition-colors"
+              aria-label={open ? 'Close navigation menu' : 'Open navigation menu'}
+              aria-expanded={open}
+              onClick={() => setOpen((current) => !current)}
+              className="rounded-lg p-2 transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:hidden"
             >
-              <Menu className="w-5 h-5" />
+              {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
         </div>
+
+        {open && (
+          <div className="border-t border-border py-3 md:hidden">
+            <div className="grid gap-1">
+              {navLinks.map((link) => (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setOpen(false)}
+                  className="rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-accent"
+                >
+                  {link.label}
+                </a>
+              ))}
+              <button
+                type="button"
+                className="rounded-lg px-3 py-2 text-left text-sm font-medium transition-colors hover:bg-accent sm:hidden"
+              >
+                Account
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </nav>
   );

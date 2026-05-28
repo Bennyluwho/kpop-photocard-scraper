@@ -7,8 +7,8 @@ interface SectionHeaderProps {
 
 export function SectionHeader({ title, action }: SectionHeaderProps) {
   return (
-    <div className="mb-6 flex items-center justify-between gap-4">
-      <h2 className="text-2xl font-semibold">{title}</h2>
+    <div className="mb-5 flex flex-col gap-3 sm:mb-6 sm:flex-row sm:items-center sm:justify-between">
+      <h2 className="text-xl font-semibold tracking-normal sm:text-2xl">{title}</h2>
       {action && <div className="shrink-0">{action}</div>}
     </div>
   );

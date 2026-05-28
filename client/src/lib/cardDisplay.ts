@@ -21,17 +21,33 @@ export function formatAlbumLabel(card: Pick<CardFeedItem, "album" | "version">) 
 }
 
 export function cardToPhotocardProps(card: CardFeedItem) {
+  const image = card.imageUrl || GROUP_IMAGES[card.group] || CARD_PLACEHOLDER;
+  const album = formatAlbumLabel(card);
+
   return {
     id: card._id,
-    image: card.imageUrl || GROUP_IMAGES[card.group] || CARD_PLACEHOLDER,
+    image,
     group: card.group,
     idol: card.idol,
-    album: formatAlbumLabel(card),
+    album,
     rarity: card.rarity,
     lowestAsk: card.lowestAsk,
     lastSale: card.lastSale,
     trend: card.trend,
     trendPercent: card.trendPercent,
+    watchlistItem: {
+      id: card._id,
+      image,
+      group: card.group,
+      idol: card.idol,
+      album,
+      rarity: card.rarity,
+      lowestAsk: card.lowestAsk,
+      lastSale: card.lastSale,
+      trend: card.trend,
+      trendPercent: card.trendPercent,
+      estimatedMarketValue: card.estimatedMarketValue,
+    },
   };
 }
 

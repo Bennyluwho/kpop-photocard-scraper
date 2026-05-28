@@ -9,6 +9,7 @@ import { Navbar } from './components/Navbar';
 import { PhotocardCard } from './components/PhotocardCard';
 import { SearchBar } from './components/SearchBar';
 import { SectionHeader } from './components/SectionHeader';
+import { CardSkeletonGrid, EmptyState, ErrorState } from './components/StatusStates';
 
 type SortOption = 'trending' | 'lowestAsk' | 'highestSale' | 'newest';
 
@@ -118,17 +119,17 @@ export default function Marketplace() {
     <div className="min-h-screen bg-background">
       <Navbar />
 
-      <main className="mx-auto max-w-7xl px-4 py-10">
+      <main className="mx-auto max-w-7xl px-4 py-8 sm:py-10">
         <div className="mb-8">
-          <h1 className="text-3xl font-semibold md:text-4xl">Browse Photocards</h1>
-          <p className="mt-2 max-w-2xl text-muted-foreground">
+          <h1 className="text-3xl font-semibold leading-tight md:text-4xl">Browse Photocards</h1>
+          <p className="mt-2 max-w-2xl leading-7 text-muted-foreground">
             Search, filter, and sort photocard listings.
           </p>
         </div>
 
         {error && (
-          <div className="mb-6 rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-            {error}. Make sure the API server is running on port 5000.
+          <div className="mb-6">
+            <ErrorState message={error} />
           </div>
         )}
 
@@ -168,16 +169,9 @@ export default function Marketplace() {
               }
             />
             {loading ? (
-              <div className="flex min-h-80 items-center justify-center rounded-xl border border-dashed border-border bg-muted/20 px-6 text-center text-sm text-muted-foreground">
-                Loading cards...
-              </div>
+              <CardSkeletonGrid />
             ) : visibleCards.length === 0 ? (
-              <div className="flex min-h-80 items-center justify-center rounded-xl border border-dashed border-border bg-muted/20 px-6 text-center">
-                <div>
-                  <h2 className="font-semibold">No cards match your filters</h2>
-                  <p className="mt-1 text-sm text-muted-foreground">Try clearing filters or searching another idol.</p>
-                </div>
-              </div>
+              <EmptyState title="No cards match your filters" message="Try clearing filters or searching another idol." />
             ) : (
               <CardGrid>
                 {visibleCards.map((card) => (

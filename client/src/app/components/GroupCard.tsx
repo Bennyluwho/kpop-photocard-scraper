@@ -8,12 +8,12 @@ interface GroupCardProps {
 
 export function GroupCard({ name, image, cardCount }: GroupCardProps) {
   return (
-    <div className="bg-card border border-border rounded-xl overflow-hidden hover:shadow-md transition-shadow cursor-pointer">
+    <div className="overflow-hidden rounded-lg border border-border bg-card shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
       <div className="aspect-[16/9] bg-muted overflow-hidden">
         <ImageWithFallback
           src={image}
           alt={name}
-          className="w-full h-full object-cover"
+          className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
         />
       </div>
       <div className="p-4">

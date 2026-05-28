@@ -36,7 +36,7 @@ export function SearchBar({
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
-        className={`w-full border border-border bg-background focus:outline-none focus:ring-2 focus:ring-ring ${inputClasses}`}
+        className={`w-full border border-border bg-background shadow-sm transition-colors placeholder:text-muted-foreground/70 hover:border-foreground/20 focus:outline-none focus:ring-2 focus:ring-ring ${inputClasses}`}
       />
       {isSearching && (
         <LoaderCircle

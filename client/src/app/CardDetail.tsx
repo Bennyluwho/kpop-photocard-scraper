@@ -10,6 +10,7 @@ import { PhotocardCard } from './components/PhotocardCard';
 import { PrimaryButton } from './components/PrimaryButton';
 import { SecondaryButton } from './components/SecondaryButton';
 import { SectionHeader } from './components/SectionHeader';
+import { CardSkeletonGrid, DetailSkeleton, EmptyState, ErrorState } from './components/StatusStates';
 
 interface CardDetailProps {
   cardId: string;
@@ -78,11 +79,12 @@ export default function CardDetail({ cardId }: CardDetailProps) {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
-        <main className="mx-auto flex min-h-[60vh] max-w-7xl items-center justify-center px-4">
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <LoaderCircle className="h-5 w-5 animate-spin" />
-            Loading card detail...
+        <main className="mx-auto max-w-7xl px-4 py-8 sm:py-10">
+          <div className="mb-6 flex items-center gap-2 text-sm text-muted-foreground">
+            <LoaderCircle className="h-4 w-4 animate-spin" />
+            Loading card detail
           </div>
+          <DetailSkeleton />
         </main>
       </div>
     );
@@ -96,8 +98,8 @@ export default function CardDetail({ cardId }: CardDetailProps) {
           <a href="/#marketplace" className="text-sm text-muted-foreground hover:text-primary">
             Back to marketplace
           </a>
-          <div className="mt-6 rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-            {error ?? 'Card not found'}. Make sure the API server is running on port 5000.
+          <div className="mt-6">
+            <ErrorState message={error ?? 'Card not found'} />
           </div>
         </main>
       </div>
@@ -111,13 +113,13 @@ export default function CardDetail({ cardId }: CardDetailProps) {
     <div className="min-h-screen bg-background">
       <Navbar />
 
-      <main className="mx-auto max-w-7xl px-4 py-8">
+      <main className="mx-auto max-w-7xl px-4 py-8 sm:py-10">
         <a href="/#marketplace" className="text-sm text-muted-foreground hover:text-primary">
           Back to marketplace
         </a>
 
-        <section className="mt-6 grid gap-8 lg:grid-cols-[420px_1fr]">
-          <div className="overflow-hidden rounded-xl border border-border bg-muted">
+        <section className="mt-6 grid gap-8 lg:grid-cols-[minmax(280px,420px)_1fr]">
+          <div className="overflow-hidden rounded-lg border border-border bg-muted shadow-sm">
             <ImageWithFallback
               src={card.imageUrl}
               alt={`${card.idol} - ${albumLabel}`}
@@ -128,8 +130,8 @@ export default function CardDetail({ cardId }: CardDetailProps) {
           <div>
             <div className="mb-5">
               <p className="text-sm text-muted-foreground">{card.group}</p>
-              <h1 className="text-3xl font-semibold md:text-4xl">{card.idol}</h1>
-              <p className="mt-2 text-lg text-muted-foreground">{albumLabel}</p>
+              <h1 className="text-3xl font-semibold leading-tight md:text-4xl">{card.idol}</h1>
+              <p className="mt-2 text-base leading-7 text-muted-foreground sm:text-lg">{albumLabel}</p>
             </div>
 
             <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-4">
@@ -149,7 +151,7 @@ export default function CardDetail({ cardId }: CardDetailProps) {
               </SecondaryButton>
             </div>
 
-            <div className="rounded-xl border border-border bg-card p-4">
+            <div className="rounded-lg border border-border bg-card p-4 shadow-sm">
               <h2 className="mb-3 font-semibold">Card Metadata</h2>
               <dl className="grid grid-cols-2 gap-3 text-sm">
                 <MetadataItem label="Group" value={card.group} />
@@ -164,12 +166,12 @@ export default function CardDetail({ cardId }: CardDetailProps) {
         </section>
 
         <section className="mt-10 grid gap-8 lg:grid-cols-[1fr_420px]">
-          <div className="rounded-xl border border-border bg-card p-5">
+          <div className="rounded-lg border border-border bg-card p-5 shadow-sm">
             <SectionHeader title="Price History" />
             {sortedSales.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No price history has been recorded for this card yet.</p>
+              <EmptyState title="No price history" message="No price history has been recorded for this card yet." />
             ) : (
-              <div className="flex h-52 items-end gap-3 border-b border-border pb-3">
+              <div className="flex h-52 items-end gap-3 overflow-x-auto border-b border-border pb-3">
                 {sortedSales
                   .slice()
                   .reverse()
@@ -180,10 +182,10 @@ export default function CardDetail({ cardId }: CardDetailProps) {
             )}
           </div>
 
-          <div className="rounded-xl border border-border bg-card p-5">
+          <div className="rounded-lg border border-border bg-card p-5 shadow-sm">
             <SectionHeader title="Recent Sales" />
             {sortedSales.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No recent sales yet.</p>
+              <EmptyState title="No recent sales" message="Completed sales will show here when available." />
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm">
@@ -211,8 +213,10 @@ export default function CardDetail({ cardId }: CardDetailProps) {
 
         <section className="mt-10">
           <SectionHeader title="Similar Cards" />
-          {similarCards.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No similar cards found in the current marketplace data.</p>
+          {loading ? (
+            <CardSkeletonGrid count={4} />
+          ) : similarCards.length === 0 ? (
+            <EmptyState title="No similar cards" message="No similar cards were found in the current marketplace data." />
           ) : (
             <CardGrid>
               {similarCards.map((similarCard) => (
@@ -230,7 +234,7 @@ export default function CardDetail({ cardId }: CardDetailProps) {
 
 function MarketStat({ label, value, fallback = '-' }: { label: string; value?: number | null; fallback?: string }) {
   return (
-    <div className="rounded-xl border border-border bg-card p-4">
+    <div className="rounded-lg border border-border bg-card p-4 shadow-sm">
       <p className="text-xs text-muted-foreground">{label}</p>
       <p className="mt-1 text-xl font-semibold">{value === null || value === undefined ? fallback : formatPrice(value)}</p>
     </div>
@@ -252,7 +256,7 @@ function PriceBar({ sale, maxPrice }: { sale: PriceHistoryEntry; maxPrice: numbe
   return (
     <div className="flex flex-1 flex-col items-center justify-end gap-2">
       <div className="text-xs font-medium">{formatPrice(sale.price)}</div>
-      <div className="w-full rounded-t bg-primary/80" style={{ height: `${height}%` }} />
+      <div className="min-w-10 rounded-t bg-primary/80" style={{ height: `${height}%` }} />
       <div className="text-xs text-muted-foreground">{formatShortDate(sale.soldDate)}</div>
     </div>
   );
@@ -261,7 +265,7 @@ function PriceBar({ sale, maxPrice }: { sale: PriceHistoryEntry; maxPrice: numbe
 function ActionModal({ action, onClose }: { action: string; onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-      <div className="w-full max-w-md rounded-xl bg-background p-5 shadow-xl">
+      <div className="w-full max-w-md rounded-lg bg-background p-5 shadow-xl">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="font-semibold">{action}</h2>
           <button type="button" aria-label="Close modal" onClick={onClose} className="rounded-lg p-1 hover:bg-accent">
