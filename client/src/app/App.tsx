@@ -1,11 +1,14 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Search } from 'lucide-react';
+import { LoaderCircle } from 'lucide-react';
 import { fetchCardFeed, fetchGroups } from '../api/cards';
 import type { CardFeedItem, GroupSummary } from '../api/types';
 import { cardToPhotocardProps, groupToCardProps } from '../lib/cardDisplay';
 import { Navbar } from './components/Navbar';
 import { PhotocardCard } from './components/PhotocardCard';
 import { GroupCard } from './components/GroupCard';
+import { SearchBar } from './components/SearchBar';
+import { SectionHeader } from './components/SectionHeader';
+import { CardGrid } from './components/CardGrid';
 
 export default function App() {
   const [search, setSearch] = useState('');
@@ -67,6 +70,13 @@ export default function App() {
     () => cards.filter((card) => card.trend === 'up' && card.trendPercent !== null),
     [cards]
   );
+  const hasCards = trendingCards.length > 0;
+  const cardCountLabel = (
+    <span className="flex items-center gap-2 text-sm text-muted-foreground">
+      {loading && <LoaderCircle className="h-4 w-4 animate-spin" aria-label="Searching" />}
+      {hasCards && `${trendingCards.length} cards`}
+    </span>
+  );
 
   return (
     <div className="min-h-screen bg-background">
@@ -82,16 +92,7 @@ export default function App() {
           </p>
 
           <div className="max-w-2xl mx-auto">
-            <div className="relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-              <input
-                type="text"
-                value={search}
-                onChange={(event) => setSearch(event.target.value)}
-                placeholder="Search by idol, group, album, or card…"
-                className="w-full pl-12 pr-4 py-4 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring"
-              />
-            </div>
+            <SearchBar value={search} onChange={setSearch} isSearching={loading && Boolean(search)} />
           </div>
         </div>
       </section>
@@ -106,71 +107,60 @@ export default function App() {
 
       <section className="py-12 px-4">
         <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-semibold">Trending Photocards</h2>
-            <span className="text-sm text-muted-foreground">
-              {loading ? 'Loading…' : `${trendingCards.length} cards`}
-            </span>
-          </div>
-          {loading ? (
-            <p className="text-muted-foreground">Loading photocards…</p>
-          ) : trendingCards.length === 0 ? (
-            <p className="text-muted-foreground">No photocards match your search.</p>
+          <SectionHeader title="Trending Photocards" action={cardCountLabel} />
+          {!hasCards ? (
+            <div className="min-h-80 transition-opacity duration-200">
+              {!loading && <p className="text-muted-foreground">No photocards match your search.</p>}
+            </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <CardGrid isLoading={loading}>
               {trendingCards.map((card) => (
                 <PhotocardCard key={card._id} {...cardToPhotocardProps(card)} />
               ))}
-            </div>
+            </CardGrid>
           )}
         </div>
       </section>
 
       <section className="py-12 px-4 bg-muted/20">
         <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-semibold">Popular Groups</h2>
-          </div>
+          <SectionHeader title="Popular Groups" />
           {groups.length === 0 && !loading ? (
             <p className="text-muted-foreground">No groups found.</p>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            <CardGrid variant="groups">
               {groups.map((group) => (
                 <GroupCard key={group.name} {...groupToCardProps(group)} />
               ))}
-            </div>
+            </CardGrid>
           )}
         </div>
       </section>
 
       <section className="py-12 px-4">
         <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-semibold">Recently Listed</h2>
-          </div>
-          {!loading && recentlyListed.length > 0 && (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <SectionHeader title="Recently Listed" />
+          {recentlyListed.length > 0 && (
+            <CardGrid isLoading={loading}>
               {recentlyListed.slice(0, 4).map((card) => (
                 <PhotocardCard key={`recent-${card._id}`} {...cardToPhotocardProps(card)} />
               ))}
-            </div>
+            </CardGrid>
           )}
         </div>
       </section>
 
       <section className="py-12 px-4 bg-muted/20">
         <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-semibold">Market Movers</h2>
-          </div>
+          <SectionHeader title="Market Movers" />
           {!loading && marketMovers.length === 0 ? (
             <p className="text-muted-foreground">No upward price trends yet.</p>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <CardGrid isLoading={loading}>
               {marketMovers.map((card) => (
                 <PhotocardCard key={`mover-${card._id}`} {...cardToPhotocardProps(card)} />
               ))}
-            </div>
+            </CardGrid>
           )}
         </div>
       </section>

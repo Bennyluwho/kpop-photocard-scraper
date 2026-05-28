@@ -1,5 +1,5 @@
-import { TrendingUp, TrendingDown } from 'lucide-react';
 import { ImageWithFallback } from './ImageWithFallback';
+import { PriceStat } from './PriceStat';
 
 interface PhotocardCardProps {
   id?: string;
@@ -14,14 +14,6 @@ interface PhotocardCardProps {
   trendPercent?: number | null;
 }
 
-function formatPrice(value?: number | null) {
-  if (value === null || value === undefined) {
-    return '—';
-  }
-
-  return `$${value}`;
-}
-
 export function PhotocardCard({
   image,
   group,
@@ -33,8 +25,6 @@ export function PhotocardCard({
   trend,
   trendPercent,
 }: PhotocardCardProps) {
-  const hasTrend = trend && trendPercent !== null && trendPercent !== undefined;
-
   return (
     <div className="bg-card border border-border rounded-xl overflow-hidden hover:shadow-lg transition-shadow cursor-pointer group">
       <div className="aspect-[3/4] bg-muted overflow-hidden">
@@ -56,28 +46,16 @@ export function PhotocardCard({
         </div>
 
         <div className="mt-3 pt-3 border-t border-border">
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-xs text-muted-foreground">Est. Value</span>
-            <span className="font-semibold">{formatPrice(lowestAsk)}</span>
+          <div className="mb-1">
+            <PriceStat label="Est. Value" value={lowestAsk} />
           </div>
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-muted-foreground">Last Sale</span>
-            <div className="flex items-center gap-1">
-              <span className="text-sm">{formatPrice(lastSale)}</span>
-              {hasTrend && (
-                <div
-                  className={`flex items-center text-xs ${trend === 'up' ? 'text-green-600' : 'text-red-600'}`}
-                >
-                  {trend === 'up' ? (
-                    <TrendingUp className="w-3 h-3" />
-                  ) : (
-                    <TrendingDown className="w-3 h-3" />
-                  )}
-                  <span>{trendPercent}%</span>
-                </div>
-              )}
-            </div>
-          </div>
+          <PriceStat
+            label="Last Sale"
+            value={lastSale}
+            trend={trend}
+            trendPercent={trendPercent}
+            valueClassName="text-sm"
+          />
         </div>
       </div>
     </div>

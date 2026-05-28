@@ -1,4 +1,4 @@
-import { Search, User, Heart, Menu } from 'lucide-react';
+import { User, Heart, Menu } from 'lucide-react';
 
 export function Navbar() {
   return (
@@ -17,13 +17,17 @@ export function Navbar() {
           </div>
 
           <div className="flex items-center gap-4">
-            <button className="p-2 hover:bg-accent rounded-lg transition-colors">
+            <button type="button" aria-label="Favorites" className="p-2 hover:bg-accent rounded-lg transition-colors">
               <Heart className="w-5 h-5" />
             </button>
-            <button className="p-2 hover:bg-accent rounded-lg transition-colors">
+            <button type="button" aria-label="Account" className="p-2 hover:bg-accent rounded-lg transition-colors">
               <User className="w-5 h-5" />
             </button>
-            <button className="md:hidden p-2 hover:bg-accent rounded-lg transition-colors">
+            <button
+              type="button"
+              aria-label="Open navigation menu"
+              className="md:hidden p-2 hover:bg-accent rounded-lg transition-colors"
+            >
               <Menu className="w-5 h-5" />
             </button>
           </div>
