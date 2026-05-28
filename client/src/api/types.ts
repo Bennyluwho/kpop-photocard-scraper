@@ -7,6 +7,7 @@ export interface ApiCard {
   cardType: string;
   rarity: string;
   condition?: string;
+  askingPrice?: number | null;
   imageUrl: string;
   aliases: string[];
   createdAt: string;

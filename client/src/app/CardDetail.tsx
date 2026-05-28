@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Heart, LoaderCircle, X } from 'lucide-react';
-import { fetchCardFeed, fetchCardSummary } from '../api/cards';
 import type { CardFeedItem, CardSummary, PriceHistoryEntry } from '../api/types';
 import { cardToPhotocardProps, formatAlbumLabel } from '../lib/cardDisplay';
+import { getCardFeed, getCardSummary } from '../services/cardApi.js';
 import { CardGrid } from './components/CardGrid';
 import { ImageWithFallback } from './components/ImageWithFallback';
 import { Navbar } from './components/Navbar';
@@ -30,8 +30,8 @@ export default function CardDetail({ cardId }: CardDetailProps) {
       setError(null);
 
       try {
-        const cardSummary = await fetchCardSummary(cardId);
-        const feed = await fetchCardFeed();
+        const cardSummary = await getCardSummary(cardId) as CardSummary;
+        const feed = await getCardFeed() as CardFeedItem[];
 
         if (!cancelled) {
           setSummary(cardSummary);

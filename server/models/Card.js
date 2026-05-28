@@ -32,6 +32,17 @@ const CardSchema = new mongoose.Schema(
         default: "Standard"
     },
 
+    condition: {
+        type: String,
+        default: "Near Mint"
+    },
+
+    askingPrice: {
+        type: Number,
+        default: null,
+        min: 0
+    },
+
     imageUrl: {
         type: String,
         default: ""

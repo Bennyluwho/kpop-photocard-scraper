@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { LoaderCircle } from 'lucide-react';
-import { fetchCardFeed } from '../api/cards';
 import type { CardFeedItem } from '../api/types';
 import { cardToPhotocardProps } from '../lib/cardDisplay';
+import { getCardFeed } from '../services/cardApi.js';
 import { CardGrid } from './components/CardGrid';
 import { FilterSidebar, type MarketplaceFilters } from './components/FilterSidebar';
 import { Navbar } from './components/Navbar';
@@ -38,7 +38,7 @@ export default function Marketplace() {
       setError(null);
 
       try {
-        const feed = await fetchCardFeed();
+        const feed = await getCardFeed() as CardFeedItem[];
 
         if (!cancelled) {
           setCards(feed);

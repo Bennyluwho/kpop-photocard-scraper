@@ -13,7 +13,7 @@ export function Navbar() {
             </div>
             <div className="hidden md:flex items-center gap-6">
               <a href="/#marketplace" className="text-sm hover:text-primary transition-colors">Browse</a>
-              <a href="#" className="text-sm hover:text-primary transition-colors">Sell</a>
+              <a href="/sell" className="text-sm hover:text-primary transition-colors">Sell</a>
               <a href="#" className="text-sm hover:text-primary transition-colors">About</a>
             </div>
           </div>

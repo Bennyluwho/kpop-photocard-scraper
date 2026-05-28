@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { LoaderCircle } from 'lucide-react';
-import { fetchCardFeed, fetchGroups } from '../api/cards';
 import type { CardFeedItem, GroupSummary } from '../api/types';
 import { cardToPhotocardProps, groupToCardProps } from '../lib/cardDisplay';
+import { getCardFeed, getGroups } from '../services/cardApi.js';
 import { Navbar } from './components/Navbar';
 import { PhotocardCard } from './components/PhotocardCard';
 import { GroupCard } from './components/GroupCard';
@@ -11,9 +11,14 @@ import { SectionHeader } from './components/SectionHeader';
 import { CardGrid } from './components/CardGrid';
 import Marketplace from './Marketplace';
 import CardDetail from './CardDetail';
+import SellCard from './SellCard';
 
 function getCurrentRoute() {
   if (window.location.pathname.startsWith('/cards/')) {
+    return window.location.pathname;
+  }
+
+  if (window.location.pathname === '/sell') {
     return window.location.pathname;
   }
 
@@ -55,8 +60,8 @@ export default function App() {
 
       try {
         const [feed, groupSummaries] = await Promise.all([
-          fetchCardFeed(debouncedSearch),
-          fetchGroups(),
+          getCardFeed(debouncedSearch) as Promise<CardFeedItem[]>,
+          getGroups() as Promise<GroupSummary[]>,
         ]);
 
         if (!cancelled) {
@@ -107,6 +112,10 @@ export default function App() {
 
   if (page.startsWith('/cards/')) {
     return <CardDetail cardId={page.replace('/cards/', '')} />;
+  }
+
+  if (page === '/sell') {
+    return <SellCard />;
   }
 
   return (

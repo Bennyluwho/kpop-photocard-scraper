@@ -46,7 +46,7 @@ async function enrichCardsWithPricing(cards) {
         return {
             ...card.toObject(),
             estimatedMarketValue,
-            lowestAsk: estimatedMarketValue,
+            lowestAsk: card.askingPrice ?? estimatedMarketValue,
             lastSale: trendData.lastSale,
             trend: trendData.trend,
             trendPercent: trendData.trendPercent,
@@ -116,6 +116,68 @@ router.get("/", async (req, res) => {
     } catch (error) {
         res.status(500).json({
             message: "Failed to fetch cards",
+            error: error.message,
+        });
+    }
+});
+
+// POST create a card/listing
+router.post("/", async (req, res) => {
+    try {
+        const {
+            group,
+            idol,
+            album,
+            version = "",
+            cardType = "Photocard",
+            rarity = "Standard",
+            condition = "Near Mint",
+            askingPrice,
+            imageUrl = "",
+            aliases = [],
+        } = req.body;
+
+        if (!group || !idol || !album) {
+            return res.status(400).json({
+                message: "Group, idol, and album are required",
+            });
+        }
+
+        const parsedAskingPrice =
+            askingPrice === "" || askingPrice === null || askingPrice === undefined
+                ? null
+                : Number(askingPrice);
+
+        if (parsedAskingPrice !== null && (Number.isNaN(parsedAskingPrice) || parsedAskingPrice < 0)) {
+            return res.status(400).json({
+                message: "Asking price must be a positive number",
+            });
+        }
+
+        const aliasList = Array.isArray(aliases)
+            ? aliases
+            : String(aliases)
+                  .split(",")
+                  .map((alias) => alias.trim())
+                  .filter(Boolean);
+
+        const card = await Card.create({
+            group: group.trim(),
+            idol: idol.trim(),
+            album: album.trim(),
+            version: version.trim(),
+            cardType: cardType.trim(),
+            rarity: rarity.trim(),
+            condition: condition.trim(),
+            askingPrice: parsedAskingPrice,
+            imageUrl: imageUrl.trim(),
+            aliases: aliasList,
+        });
+
+        res.status(201).json(card);
+    } catch (error) {
+        res.status(400).json({
+            message: "Failed to create card listing",
             error: error.message,
         });
     }
