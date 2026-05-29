@@ -103,7 +103,7 @@ export default function App() {
   );
 
   const marketMovers = useMemo(
-    () => cards.filter((card) => card.trend === 'up' && card.trendPercent !== null),
+    () => cards.filter((card) => card.activeListingCount > 0),
     [cards]
   );
   const hasCards = trendingCards.length > 0;
@@ -140,7 +140,7 @@ export default function App() {
             The marketplace for K-pop photocards
           </h1>
           <p className="mx-auto mb-8 max-w-3xl text-base leading-7 text-muted-foreground sm:text-lg md:text-xl">
-            Track prices, discover rare cards, and buy or sell photocards from your favorite idols.
+            Find official catalog cards, compare active listings, and sell photocards from your favorite idols.
           </p>
 
           <div className="max-w-2xl mx-auto">
@@ -157,7 +157,7 @@ export default function App() {
 
       <section className="px-4 py-10 sm:py-12">
         <div className="max-w-7xl mx-auto">
-          <SectionHeader title="Trending Photocards" action={cardCountLabel} />
+          <SectionHeader title={search ? 'Search Results' : 'Browse Photocards'} action={cardCountLabel} />
           {loading ? (
             <CardSkeletonGrid />
           ) : !hasCards ? (
@@ -191,7 +191,7 @@ export default function App() {
 
       <section className="px-4 py-10 sm:py-12">
         <div className="max-w-7xl mx-auto">
-          <SectionHeader title="Recently Listed" />
+          <SectionHeader title="Recently Added Cards" />
           {loading ? (
             <CardSkeletonGrid count={4} />
           ) : recentlyListed.length > 0 ? (
@@ -201,18 +201,18 @@ export default function App() {
               ))}
             </CardGrid>
           ) : (
-            <EmptyState title="No recent listings" message="Newly created listings will show up here." />
+            <EmptyState title="No recent cards" message="Newly added catalog cards will show up here." />
           )}
         </div>
       </section>
 
       <section className="bg-muted/20 px-4 py-10 sm:py-12">
         <div className="max-w-7xl mx-auto">
-          <SectionHeader title="Market Movers" />
+          <SectionHeader title="Cards With Active Listings" />
           {loading ? (
             <CardSkeletonGrid count={4} />
           ) : marketMovers.length === 0 ? (
-            <EmptyState title="No market movers yet" message="Cards with upward price trends will appear here." />
+            <EmptyState title="No active listings yet" message="Cards with available seller listings will appear here." />
           ) : (
             <CardGrid isLoading={loading}>
               {marketMovers.map((card) => (

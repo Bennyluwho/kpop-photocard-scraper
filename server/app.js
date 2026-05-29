@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cors from "cors";
 import cardRoutes from "./routes/cards.js";
+import listingRoutes from "./routes/listings.js";
 import priceRoutes from "./routes/prices.js";
 
 dotenv.config();
@@ -22,6 +23,7 @@ mongoose
     });
 
 app.use("/api/cards", cardRoutes);
+app.use("/api/listings", listingRoutes);
 app.use("/api/prices", priceRoutes);
 
 const PORT = process.env.PORT || 5000;

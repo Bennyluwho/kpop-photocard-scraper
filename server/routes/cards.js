@@ -1,22 +1,28 @@
 import express from "express";
 import Card from "../models/Card.js";
+import Listing from "../models/Listing.js";
 import PriceHistory from "../models/PriceHistory.js";
 import { median, priceTrend } from "../utils/pricing.js";
 
 const router = express.Router();
 
 function buildSearchQuery(search) {
-    if (!search) return {};
+    if (!search || !String(search).trim()) return {};
+
+    const searchableFields = ["group", "idol", "album", "version", "cardType", "rarity", "aliases"];
+    const terms = String(search).trim().split(/\s+/).map(escapeRegex);
 
     return {
-        $or: [
-            { group: { $regex: search, $options: "i" } },
-            { idol: { $regex: search, $options: "i" } },
-            { album: { $regex: search, $options: "i" } },
-            { version: { $regex: search, $options: "i" } },
-            { aliases: { $regex: search, $options: "i" } },
-        ],
+        $and: terms.map((term) => ({
+            $or: searchableFields.map((field) => ({
+                [field]: { $regex: term, $options: "i" },
+            })),
+        })),
     };
+}
+
+function escapeRegex(value) {
+    return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 async function enrichCardsWithPricing(cards) {
@@ -25,8 +31,32 @@ async function enrichCardsWithPricing(cards) {
     const histories = await PriceHistory.find({ cardId: { $in: cardIds } })
         .sort({ soldDate: -1 })
         .lean();
+    const listingSummaries = await Listing.aggregate([
+        {
+            $match: {
+                cardId: { $in: cardIds },
+                status: "active",
+            },
+        },
+        {
+            $group: {
+                _id: "$cardId",
+                activeListingCount: { $sum: 1 },
+                lowestListingPrice: { $min: "$price" },
+            },
+        },
+    ]);
 
     const historyByCard = new Map();
+    const listingByCard = new Map(
+        listingSummaries.map((summary) => [
+            String(summary._id),
+            {
+                activeListingCount: summary.activeListingCount,
+                lowestListingPrice: summary.lowestListingPrice,
+            },
+        ])
+    );
 
     for (const entry of histories) {
         const key = String(entry.cardId);
@@ -42,11 +72,13 @@ async function enrichCardsWithPricing(cards) {
         const latestTwo = cardHistory.slice(0, 2).map((entry) => entry.price);
         const trendData = priceTrend(latestTwo);
         const estimatedMarketValue = median(recentPrices);
+        const listingSummary = listingByCard.get(String(card._id));
 
         return {
             ...card.toObject(),
             estimatedMarketValue,
-            lowestAsk: card.askingPrice ?? estimatedMarketValue,
+            lowestAsk: listingSummary?.lowestListingPrice ?? card.askingPrice ?? estimatedMarketValue,
+            activeListingCount: listingSummary?.activeListingCount ?? 0,
             lastSale: trendData.lastSale,
             trend: trendData.trend,
             trendPercent: trendData.trendPercent,
@@ -106,13 +138,37 @@ router.get("/", async (req, res) => {
         const { search } = req.query;
         const query = buildSearchQuery(search);
 
-        const cards = await Card.find(query).sort({
-            group: 1,
-            idol: 1,
-            album: 1,
-        });
+        const cards = await Card.find(query)
+            .sort({
+                group: 1,
+                idol: 1,
+                album: 1,
+            })
+            .lean();
+        const listingSummaries = await Listing.aggregate([
+            {
+                $match: {
+                    cardId: { $in: cards.map((card) => card._id) },
+                    status: "active",
+                },
+            },
+            {
+                $group: {
+                    _id: "$cardId",
+                    activeListingCount: { $sum: 1 },
+                    lowestListingPrice: { $min: "$price" },
+                },
+            },
+        ]);
+        const listingByCard = new Map(listingSummaries.map((summary) => [String(summary._id), summary]));
 
-        res.json(cards);
+        res.json(
+            cards.map((card) => ({
+                ...card,
+                activeListingCount: listingByCard.get(String(card._id))?.activeListingCount ?? 0,
+                lowestAsk: listingByCard.get(String(card._id))?.lowestListingPrice ?? card.askingPrice ?? null,
+            }))
+        );
     } catch (error) {
         res.status(500).json({
             message: "Failed to fetch cards",
@@ -178,6 +234,32 @@ router.post("/", async (req, res) => {
     } catch (error) {
         res.status(400).json({
             message: "Failed to create card listing",
+            error: error.message,
+        });
+    }
+});
+
+// GET active listings for one official catalog card
+router.get("/:cardId/listings", async (req, res) => {
+    try {
+        const { cardId } = req.params;
+
+        const card = await Card.findById(cardId);
+
+        if (!card) {
+            return res.status(404).json({
+                message: "Card not found",
+            });
+        }
+
+        const listings = await Listing.find({ cardId, status: "active" })
+            .populate("cardId")
+            .sort({ createdAt: -1 });
+
+        res.json(listings);
+    } catch (error) {
+        res.status(500).json({
+            message: "Failed to fetch card listings",
             error: error.message,
         });
     }

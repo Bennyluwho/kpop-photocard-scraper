@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Heart, Menu, User, X } from 'lucide-react';
+import { Heart, Menu, ShoppingCart, User, X } from 'lucide-react';
 
 const navLinks = [
   { href: '/#marketplace', label: 'Browse' },
@@ -32,6 +32,9 @@ export function Navbar() {
           <div className="flex items-center gap-2">
             <a href="/watchlist" aria-label="Watchlist" className="rounded-lg p-2 transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
               <Heart className="w-5 h-5" />
+            </a>
+            <a href="/cart" aria-label="Cart" className="rounded-lg p-2 transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+              <ShoppingCart className="w-5 h-5" />
             </a>
             <button type="button" aria-label="Profile" className="rounded-lg p-2 transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
               <User className="w-5 h-5" />

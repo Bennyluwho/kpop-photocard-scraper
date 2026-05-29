@@ -20,6 +20,7 @@ interface PhotocardCardProps {
   lastSale?: number | null;
   trend?: 'up' | 'down' | null;
   trendPercent?: number | null;
+  activeListingCount?: number;
   watchlistItem?: {
     id: string;
     image: string;
@@ -47,6 +48,7 @@ export function PhotocardCard({
   lastSale,
   trend,
   trendPercent,
+  activeListingCount,
   watchlistItem,
   onRemove,
 }: PhotocardCardProps) {
@@ -128,15 +130,22 @@ export function PhotocardCard({
 
         <div className="mt-3 pt-3 border-t border-border">
           <div className="mb-1">
-            <PriceStat label="Est. Value" value={lowestAsk} />
+            <PriceStat label="From" value={lowestAsk} />
           </div>
-          <PriceStat
-            label="Last Sale"
-            value={lastSale}
-            trend={trend}
-            trendPercent={trendPercent}
-            valueClassName="text-sm"
-          />
+          {activeListingCount !== undefined ? (
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-muted-foreground">Listings</span>
+              <span className="text-sm font-medium">{activeListingCount}</span>
+            </div>
+          ) : (
+            <PriceStat
+              label="Last Sale"
+              value={lastSale}
+              trend={trend}
+              trendPercent={trendPercent}
+              valueClassName="text-sm"
+            />
+          )}
         </div>
       </div>
     </>

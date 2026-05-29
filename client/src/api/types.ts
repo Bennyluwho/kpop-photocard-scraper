@@ -12,15 +12,31 @@ export interface ApiCard {
   aliases: string[];
   createdAt: string;
   updatedAt: string;
+  activeListingCount?: number;
+  lowestAsk?: number | null;
 }
 
 export interface CardFeedItem extends ApiCard {
   estimatedMarketValue: number | null;
   lowestAsk: number | null;
+  activeListingCount: number;
   lastSale: number | null;
   trend: "up" | "down" | null;
   trendPercent: number | null;
   priceCount: number;
+}
+
+export interface ApiListing {
+  _id: string;
+  cardId: ApiCard;
+  sellerName: string;
+  price: number;
+  condition: string;
+  userImageUrl: string;
+  description: string;
+  status: "active" | "sold" | "inactive";
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface GroupSummary {

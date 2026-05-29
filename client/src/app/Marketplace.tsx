@@ -11,7 +11,7 @@ import { SearchBar } from './components/SearchBar';
 import { SectionHeader } from './components/SectionHeader';
 import { CardSkeletonGrid, EmptyState, ErrorState } from './components/StatusStates';
 
-type SortOption = 'trending' | 'lowestAsk' | 'highestSale' | 'newest';
+type SortOption = 'mostListings' | 'lowestAsk' | 'newest';
 
 const initialFilters: MarketplaceFilters = {
   group: '',
@@ -36,8 +36,14 @@ export default function Marketplace() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [filters, setFilters] = useState<MarketplaceFilters>(getInitialFilters);
-  const [sort, setSort] = useState<SortOption>('trending');
+  const [sort, setSort] = useState<SortOption>('mostListings');
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setDebouncedSearch(search), 300);
+    return () => window.clearTimeout(timer);
+  }, [search]);
 
   useEffect(() => {
     let cancelled = false;
@@ -47,7 +53,7 @@ export default function Marketplace() {
       setError(null);
 
       try {
-        const feed = await getCardFeed() as CardFeedItem[];
+        const feed = await getCardFeed(debouncedSearch) as CardFeedItem[];
 
         if (!cancelled) {
           setCards(feed);
@@ -69,7 +75,7 @@ export default function Marketplace() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [debouncedSearch]);
 
   const filterOptions = useMemo(
     () => ({
@@ -83,28 +89,14 @@ export default function Marketplace() {
   );
 
   const visibleCards = useMemo(() => {
-    const normalizedSearch = search.trim().toLowerCase();
     const minPrice = Number(filters.minPrice);
     const maxPrice = Number(filters.maxPrice);
 
     return cards
       .filter((card) => {
-        const searchText = [
-          card.group,
-          card.idol,
-          card.album,
-          card.version,
-          card.rarity,
-          card.condition,
-          ...card.aliases,
-        ]
-          .filter(Boolean)
-          .join(' ')
-          .toLowerCase();
         const cardPrice = card.lowestAsk ?? card.estimatedMarketValue ?? 0;
 
         return (
-          (!normalizedSearch || searchText.includes(normalizedSearch)) &&
           (!filters.group || card.group === filters.group) &&
           (!filters.idol || card.idol === filters.idol) &&
           (!filters.album || card.album === filters.album) &&
@@ -115,7 +107,7 @@ export default function Marketplace() {
         );
       })
       .sort((a, b) => sortCards(a, b, sort));
-  }, [cards, filters, search, sort]);
+  }, [cards, filters, sort]);
 
   const resultLabel = `${visibleCards.length} ${visibleCards.length === 1 ? 'card' : 'cards'}`;
 
@@ -142,7 +134,7 @@ export default function Marketplace() {
         )}
 
         <div className="mb-6 grid items-center gap-3 border-b border-border pb-4 lg:grid-cols-[1fr_auto]">
-          <SearchBar value={search} onChange={setSearch} size="compact" />
+          <SearchBar value={search} onChange={setSearch} size="compact" isSearching={loading && Boolean(search)} />
           <label className="flex items-center gap-2 justify-self-start lg:justify-self-end">
             <span className="whitespace-nowrap text-sm font-medium text-muted-foreground">Sort by:</span>
             <select
@@ -150,9 +142,8 @@ export default function Marketplace() {
               onChange={(event) => setSort(event.target.value as SortOption)}
               className="h-10 w-36 rounded-lg border border-border bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
             >
-              <option value="trending">Trending</option>
-              <option value="lowestAsk">Lowest Ask</option>
-              <option value="highestSale">Highest Sale</option>
+              <option value="mostListings">Most Listings</option>
+              <option value="lowestAsk">Lowest Price</option>
               <option value="newest">Newest</option>
             </select>
           </label>
@@ -205,15 +196,11 @@ function sortCards(a: CardFeedItem, b: CardFeedItem, sort: SortOption) {
     return getPrice(a.lowestAsk, Number.MAX_SAFE_INTEGER) - getPrice(b.lowestAsk, Number.MAX_SAFE_INTEGER);
   }
 
-  if (sort === 'highestSale') {
-    return getPrice(b.lastSale, 0) - getPrice(a.lastSale, 0);
-  }
-
   if (sort === 'newest') {
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   }
 
-  return (b.trendPercent ?? 0) - (a.trendPercent ?? 0);
+  return (b.activeListingCount ?? 0) - (a.activeListingCount ?? 0);
 }
 
 function getPrice(value: number | null | undefined, fallback: number) {

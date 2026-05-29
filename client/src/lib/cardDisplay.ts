@@ -39,6 +39,7 @@ export function cardToPhotocardProps(card: CardFeedItem) {
     lastSale: card.lastSale,
     trend: card.trend,
     trendPercent: card.trendPercent,
+    activeListingCount: card.activeListingCount,
     watchlistItem: {
       id: card._id,
       image,

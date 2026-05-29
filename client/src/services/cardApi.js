@@ -39,6 +39,11 @@ export async function getCardById(id) {
   return parseJson(res, "Failed to fetch card");
 }
 
+export async function getCardListings(id) {
+  const res = await fetch(`${API_BASE_URL}/api/cards/${id}/listings`);
+  return parseJson(res, "Failed to fetch card listings");
+}
+
 export async function getCardSummary(id) {
   const res = await fetch(`${API_BASE_URL}/api/cards/${id}/summary`);
   return parseJson(res, "Failed to fetch card summary");
@@ -59,4 +64,16 @@ export async function createCardListing(listing) {
   });
 
   return parseJson(res, "Failed to create card listing");
+}
+
+export async function createListing(listing) {
+  const res = await fetch(`${API_BASE_URL}/api/listings`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(listing),
+  });
+
+  return parseJson(res, "Failed to create listing");
 }

@@ -11,7 +11,7 @@ interface SearchBarProps {
 export function SearchBar({
   value,
   onChange,
-  placeholder = 'Search by idol, group, album, or card…',
+  placeholder = 'Search by idol, group, album, version, or photocard',
   isSearching = false,
   size = 'default',
 }: SearchBarProps) {

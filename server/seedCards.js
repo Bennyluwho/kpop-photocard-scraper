@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import Card from "./models/Card.js";
+import Listing from "./models/Listing.js";
 
 dotenv.config();
 
@@ -427,11 +428,23 @@ async function seedCards() {
     try {
         await mongoose.connect(process.env.MONGO_URI);
 
+        await Listing.deleteMany({});
         await Card.deleteMany({});
 
         const insertedCards = await Card.insertMany(cards);
+        const demoListings = insertedCards.slice(0, 8).map((card, index) => ({
+            cardId: card._id,
+            sellerName: "Benny",
+            price: [18.99, 22, 28.5, 34, 24, 19.5, 42, 36][index],
+            condition: "Near Mint",
+            userImageUrl: "",
+            description: `Official ${card.idol} ${card.album} photocard, sleeved since pulled.`,
+            status: "active",
+        }));
 
-        console.log(`Seeded ${insertedCards.length} cards successfully`);
+        await Listing.insertMany(demoListings);
+
+        console.log(`Seeded ${insertedCards.length} cards and ${demoListings.length} listings successfully`);
         process.exit(0);
     } catch (error) {
         console.error("Failed to seed cards:", error.message);
